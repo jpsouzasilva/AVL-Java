@@ -18,13 +18,10 @@ public class AVL {
     }
     
     public static void AVL_tree_test(AVLTree b) {
+        b.insert(5);
         b.insert(3);
-        b.insert(8);
-        b.insert(1);
         b.insert(4);
-        b.insert(6);
-        System.out.println("Original Tree : ");
-        b.displayTree(b.root);
+        b.display(b.root);
     }
     
     public static void B_tree_test(BinarySearchTree b) {

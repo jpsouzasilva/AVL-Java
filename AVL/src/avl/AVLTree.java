@@ -120,79 +120,83 @@ public class AVLTree extends BinarySearchTree {
     }
     
     // Rotação Simples a Direita(RSD)
-    private static Node rotateRight( Node root )
+    private static Node rotateRight( Node oldRoot )
     {
-        Node newRoot = root.left;
-        if (root.parent != null) {
-            if (isLeftChild(root)) root.parent.left = newRoot; else root.parent.right = newRoot ;
+        Node newRoot = oldRoot.left;
+        System.out.println("pai: " + newRoot.data + ":" + newRoot.balancingFactor);
+        if (oldRoot.parent != null) {
+            if (isLeftChild(oldRoot)) oldRoot.parent.left = newRoot; else oldRoot.parent.right = newRoot ;
+        } else {
+            root = newRoot;
         }
-        newRoot.parent = root.parent;
+        newRoot.parent = oldRoot.parent;
         
-        root.left = newRoot.right;
-        if (root.left != null) root.left.parent = root.left;
+        oldRoot.left = newRoot.right;
+        if (oldRoot.left != null) oldRoot.left.parent = oldRoot;
         
-        newRoot.right = root;
+        newRoot.right = oldRoot;
         newRoot.right.parent = newRoot;
         
-        root.balancingFactor += (1 - Integer.min(newRoot.balancingFactor, 0));
-        newRoot.balancingFactor += (1 + Integer.max(root.balancingFactor, 0));
+        System.out.println("pai: " + newRoot.data + ":" + newRoot.balancingFactor + 
+                " filho esquerdo:" + newRoot.left.data + ":" + newRoot.left.balancingFactor 
+                + " filho direito:" + newRoot.right.data + ":" + newRoot.right.balancingFactor);
+        oldRoot.balancingFactor -= (1 + Integer.max(newRoot.balancingFactor, 0));
+        newRoot.balancingFactor -= (1 + Integer.min(oldRoot.balancingFactor, 0));
+        System.out.println("pai: " + newRoot.balancingFactor + " filho esquerdo:" + newRoot.left.balancingFactor + " filho direito:" + newRoot.right.balancingFactor);
         return newRoot;
     }
 
     // Rotação Simples a Esquerda(RSE)
-    private static Node rotateLeft( Node root )
+    private static Node rotateLeft( Node oldRoot )
     {
-        Node newRoot = root.right;
-        if (root.parent != null) {
-            if (isLeftChild(root)) root.parent.left = newRoot; else root.parent.right = newRoot ;
+        Node newRoot = oldRoot.right;
+        if (oldRoot.parent != null) {
+            if (isLeftChild(oldRoot)) oldRoot.parent.left = newRoot; else oldRoot.parent.right = newRoot ;
+        } else {
+            root = newRoot;
         }
-        newRoot.parent = root.parent;
+        newRoot.parent = oldRoot.parent;
         
-        root.right = newRoot.left;
-        if (root.right != null) root.right.parent = root;
+        oldRoot.right = newRoot.left;
+        if (oldRoot.right != null) oldRoot.right.parent = oldRoot;
         
-        newRoot.left = root;
+        newRoot.left = oldRoot;
         newRoot.left.parent = newRoot;
         
-        root.balancingFactor -= (1 + Integer.max(newRoot.balancingFactor, 0));
-        newRoot.balancingFactor -= (1 - Integer.min(root.balancingFactor, 0));
+        oldRoot.balancingFactor -= (1 + Integer.max(newRoot.balancingFactor, 0));
+        newRoot.balancingFactor -= (1 - Integer.min(oldRoot.balancingFactor, 0));
         return newRoot;
     }
 
     // Rotação Dupla a Direita(RDD)
-    private static void rotateLeftRight( Node root )
+    private static void rotateLeftRight( Node oldRoot )
     {
-        root.left = rotateLeft( root.left );
-        rotateRight( root );
+        oldRoot.left = rotateLeft( oldRoot.left );
+        rotateRight( oldRoot );
     }
 
     // Rotação Dupla a Esquerda(RDE)
-    private static void rotateRightLeft( Node root )
+    private static void rotateRightLeft( Node oldRoot )
     {
-        root.right = rotateRight( root.right );
-        rotateLeft( root );
+        oldRoot.right = rotateRight( oldRoot.right );
+        rotateLeft( oldRoot );
     }
 
-    public void checkBalancingFactorInsert ( Node node ) {
+    public static void checkBalancingFactorInsert ( Node node ) {
         // get balancing factor if children aren't null
         int leftChildBalancingFactor = (node.left != null) ? Math.abs(node.left.balancingFactor) : 0;
         int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
         
-        // update the node's balancing factor based on children
-        if (node.left != null) node.balancingFactor += leftChildBalancingFactor;
-        if (node.right != null) node.balancingFactor -= rightChildBalancingFactor;
-       
+        // attempt to know who is unbalancing the tree
+        Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0 
+            ? node.left : node.right;
+        
         // check for unbalanced state
         if (node.balancingFactor == Math.abs(2)) {
-            
-            // attempt to know who is unbalancing the tree
-            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0 
-                    ? node.left : node.right;
             if (tempNode == node.left) {
                 if (node.balancingFactor >= 0 && tempNode.balancingFactor >= 0) {
                     rotateRight(node);
                 } else if ((node.balancingFactor >= 0 && tempNode.balancingFactor < 0)) {
-                    displayTree(this.root);
                     rotateLeftRight(node);
                 }
             } else if (tempNode == node.right) {
@@ -203,12 +207,15 @@ public class AVLTree extends BinarySearchTree {
                 }
             }
         }
-        if (node.parent != null && !(node.parent.balancingFactor == 0)) {
-            checkBalancingFactorInsert (node.parent);
+        if (node.parent != null) {
+            if (isLeftChild(node) && tempNode != null) node.parent.balancingFactor +=1; else node.parent.balancingFactor -= 1;
+            if (node.parent.balancingFactor != 0) {
+                checkBalancingFactorInsert (node.parent);
+            }
         }
     }
     
-    public void checkBalancingFactorDelete ( Node node ) {
+    public static void checkBalancingFactorDelete ( Node node ) {
         // get balancing factor if children aren't null
         int leftChildBalancingFactor = (node.left != null) ? Math.abs(node.left.balancingFactor) : 0;
         int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
