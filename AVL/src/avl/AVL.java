@@ -21,7 +21,9 @@ public class AVL {
         b.insert(5);
         b.insert(3);
         b.insert(4);
-        b.display(b.root);
+        b.insert(2);
+        b.delete(3);
+        b.displayTree(b.root);
     }
     
     public static void B_tree_test(BinarySearchTree b) {

@@ -129,7 +129,7 @@ public class BinarySearchTree {
     public void display(Node root) {
         if (root != null) {
             display(root.left);
-            System.out.print(" " + root.data);
+            System.out.print(root.data);
             display(root.right);
         }
     }
