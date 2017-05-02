@@ -18,11 +18,14 @@ public class AVL {
     }
     
     public static void AVL_tree_test(AVLTree b) {
-        b.insert(5);
         b.insert(3);
+        b.insert(8);
+        b.insert(1);
         b.insert(4);
+        b.insert(6);
         b.insert(2);
-        b.delete(3);
+        b.insert(10);
+        b.delete(10);
         b.displayTree(b.root);
     }
     

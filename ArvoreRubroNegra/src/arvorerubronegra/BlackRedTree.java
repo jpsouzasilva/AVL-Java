@@ -1,10 +1,10 @@
-package avl;
+package arvorerubronegra;
 
-public class AVLTree extends BinarySearchTree {
+public class BlackRedTree extends BinarySearchTree {
     public static Node root;
     protected static int CURRENT_OPERATION;
     
-    public AVLTree() {
+    public BlackRedTree() {
         this.root = null;
     }
 
@@ -34,39 +34,32 @@ public class AVLTree extends BinarySearchTree {
                 root = null;
             } else if (isLeftChild) {
                 parent.left = null;
-                parent.balancingFactor -= 1;
             } else {
                 parent.right = null;
-                parent.balancingFactor += 1;
             }
         } else if (current.right == null) {
             if (current == root) {
                 root = current.left;
-                root.balancingFactor = 0;
             } else if (isLeftChild) {
                 parent.left = current.left;
             } else {
                 parent.right = current.left;
             }
-            parent.balancingFactor -= 1;
         } else if (current.left == null) {
             if (current == root) {
                 root = current.right;
-                root.balancingFactor = 0;
             } else if (isLeftChild) {
                 // check if current node is left child
                 parent.left = current.right;
             } else {
                 parent.right = current.right;
             }
-            parent.balancingFactor += 1;
         } else if (current.left != null && current.right != null) {
             Node[] successorAndParent = getSuccessorAndSuccessorParent(current);
             if (current == root) {
                 root = successorAndParent[0];
                 root.left = current.left;
                 root.right = current.right;
-                root.balancingFactor = current.balancingFactor;
                 return;
             } else if (isLeftChild) {
                 parent.left = successorAndParent[0];
@@ -76,13 +69,11 @@ public class AVLTree extends BinarySearchTree {
             successorAndParent[0].parent = parent;
             successorAndParent[0].left = current.left;
             successorAndParent[0].right = current.right;
-            successorAndParent[0].balancingFactor = current.balancingFactor;
             
-            // assigning the successor's old parent to balance check
+            // color balancing on sucessor's parent
             parent = successorAndParent[1];
         }
-        System.out.println(parent.data);
-        checkBalancingFactorDelete (parent);
+        checkColor(parent);
     }
 
     @Override
@@ -101,8 +92,7 @@ public class AVLTree extends BinarySearchTree {
                 if (current == null) {
                     parent.left = newNode;
                     newNode.parent = parent;
-                    parent.balancingFactor += 1;
-                    checkBalancingFactorInsert(parent);
+                    checkColor(newNode);
                     return;
                 }
             } else {
@@ -110,8 +100,7 @@ public class AVLTree extends BinarySearchTree {
                 if (current == null) {
                     parent.right = newNode;
                     newNode.parent = parent;
-                    parent.balancingFactor -= 1;
-                    checkBalancingFactorInsert(parent);
+                    checkColor(newNode);
                     return;
                 }
             }
@@ -134,8 +123,6 @@ public class AVLTree extends BinarySearchTree {
         
         newRoot.right = oldRoot;
         newRoot.right.parent = newRoot;
-        oldRoot.balancingFactor -= (1 + Integer.max(newRoot.balancingFactor, 0));
-        newRoot.balancingFactor -= (1 + Integer.min(oldRoot.balancingFactor, 0));
         return newRoot;
     }
 
@@ -155,9 +142,6 @@ public class AVLTree extends BinarySearchTree {
         
         newRoot.left = oldRoot;
         newRoot.left.parent = newRoot;
-        
-        oldRoot.balancingFactor += (1 - Integer.min(newRoot.balancingFactor, 0));
-        newRoot.balancingFactor += (1 + Integer.max(oldRoot.balancingFactor, 0));
         return newRoot;
     }
 
@@ -174,75 +158,10 @@ public class AVLTree extends BinarySearchTree {
         oldRoot.right = rotateRight( oldRoot.right );
         return rotateLeft( oldRoot );
     }
-
-    public Node checkBalancingFactorInsert ( Node node ) {
-        // get balancing factor if children aren't null
-        int leftChildBalancingFactor = (node.left != null) ? Math.abs(node.left.balancingFactor) : 0;
-        int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
-        
-        // attempt to know who is unbalancing the tree
-        Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0 
-            ? node.left : node.right;
-        
-        // check for unbalanced state
-        if (node.balancingFactor == Math.abs(2)) {
-            if (tempNode == node.left) {
-                if (node.balancingFactor >= 0 && tempNode.balancingFactor >= 0) {
-                    return checkBalancingFactorInsert( rotateRight(node) );
-                } else if ((node.balancingFactor >= 0 && tempNode.balancingFactor < 0)) {
-                    return checkBalancingFactorInsert( rotateLeftRight(node) );
-                }
-            } else if (tempNode == node.right) {
-                if (node.balancingFactor < 0 && tempNode.balancingFactor <= 0) {
-                    return checkBalancingFactorInsert( rotateLeft(node) );
-                } else if ((node.balancingFactor < 0 && tempNode.balancingFactor > 0)) {
-                    return checkBalancingFactorInsert(rotateRightLeft(node));
-                }
-            }
-        }
-        if (node.parent != null && node.parent.balancingFactor != 0) {
-            if (isLeftChild(node)) node.parent.balancingFactor +=1; else node.parent.balancingFactor -= 1;
-            if (node.parent.balancingFactor != 0) {
-                checkBalancingFactorInsert (node.parent);
-            }
-        }
+    
+    public Node checkColor(Node node) {
         return null;
     }
-    
-    public Node checkBalancingFactorDelete ( Node node ) {
-        // get balancing factor if children aren't null
-        int leftChildBalancingFactor = (node.left != null) ? Math.abs(node.left.balancingFactor) : 0;
-        int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
-        
-        // attempt to know who is unbalancing the tree
-        Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0 
-            ? node.left : node.right;
-        
-        // check for unbalanced state
-        if (node.balancingFactor == Math.abs(2)) {
-            if (tempNode == node.left) {
-                if (node.balancingFactor >= 0 && tempNode.balancingFactor >= 0) {
-                    return checkBalancingFactorDelete (rotateRight(node) );
-                } else if ((node.balancingFactor >= 0 && tempNode.balancingFactor < 0)) {
-                    return checkBalancingFactorDelete ( rotateLeftRight(node) );
-                }
-            } else if (tempNode == node.right) {
-                if (node.balancingFactor < 0 && tempNode.balancingFactor <= 0) {
-                    return checkBalancingFactorDelete (rotateLeft(node) );
-                } else if ((node.balancingFactor < 0 && tempNode.balancingFactor > 0)) {
-                    return checkBalancingFactorDelete (rotateRightLeft(node));
-                }
-            }
-        }
-        if (node.parent != null && node.parent.balancingFactor != 0) {
-            if (isLeftChild(node)) node.parent.balancingFactor -=1; else node.parent.balancingFactor += 1;
-            if (node.parent.balancingFactor == 0) {
-                checkBalancingFactorDelete (node.parent);
-            }
-        }
-        return null;
-    }
-    
         
     public Node[] getSuccessorAndSuccessorParent (Node deleteNode) {
         Node successor = null;
@@ -258,7 +177,6 @@ public class AVLTree extends BinarySearchTree {
         if (successor != deleteNode.right) {
             successorParent.left = successor.right;
             successor.right = deleteNode.right;
-            if (isLeftChild(successor)) successorParent.balancingFactor -=1; else successorParent.balancingFactor +=1;
         }
         return new Node[] {successor, successorParent};
     }
@@ -266,7 +184,7 @@ public class AVLTree extends BinarySearchTree {
     public static void displayTree( Node root ) {
         if (root != null) {
             displayTree(root.left);
-            System.out.print(" " + root.data + "(" + root.balancingFactor + ")");
+            System.out.print(" " + root.data + "(" + root.cor + ")");
             displayTree(root.right);
         }
     }
