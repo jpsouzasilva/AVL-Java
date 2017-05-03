@@ -9,78 +9,12 @@ public class BlackRedTree extends BinarySearchTree {
     }
 
     @Override
-    public void delete(int id) {
-        Node parent = root;
-        Node current = root;
-        boolean isLeftChild = false;
-        
-        // trying to find the node
-        while (current.data != id) {
-            parent = current;
-            if (current.data > id) {
-                current = current.left;
-            } else {
-                current = current.right;
-            }
-            if (current == null) {
-                return;
-            }
-        }
-        
-        // node was found
-        isLeftChild = isLeftChild(current);
-        if (current.left == null && current.right == null) {
-            if (current == root) {
-                root = null;
-            } else if (isLeftChild) {
-                parent.left = null;
-            } else {
-                parent.right = null;
-            }
-        } else if (current.right == null) {
-            if (current == root) {
-                root = current.left;
-            } else if (isLeftChild) {
-                parent.left = current.left;
-            } else {
-                parent.right = current.left;
-            }
-        } else if (current.left == null) {
-            if (current == root) {
-                root = current.right;
-            } else if (isLeftChild) {
-                // check if current node is left child
-                parent.left = current.right;
-            } else {
-                parent.right = current.right;
-            }
-        } else if (current.left != null && current.right != null) {
-            Node[] successorAndParent = getSuccessorAndSuccessorParent(current);
-            if (current == root) {
-                root = successorAndParent[0];
-                root.left = current.left;
-                root.right = current.right;
-                return;
-            } else if (isLeftChild) {
-                parent.left = successorAndParent[0];
-            } else {
-                parent.right = successorAndParent[0];
-            }
-            successorAndParent[0].parent = parent;
-            successorAndParent[0].left = current.left;
-            successorAndParent[0].right = current.right;
-            
-            // color balancing on sucessor's parent
-            parent = successorAndParent[1];
-        }
-        checkColor(parent);
-    }
-
-    @Override
     public void insert(int id) {
-        Node newNode = new Node(id);
+        // start node as red
+        Node newNode = new Node(id, 1);
         if (root == null) {
             root = newNode;
+            checkColor(newNode);
             return;
         }
         Node current = root;
@@ -159,32 +93,47 @@ public class BlackRedTree extends BinarySearchTree {
         return rotateLeft( oldRoot );
     }
     
-    public Node checkColor(Node node) {
-        return null;
-    }
-        
-    public Node[] getSuccessorAndSuccessorParent (Node deleteNode) {
-        Node successor = null;
-        Node successorParent = null;
-        Node current = deleteNode.right;
-        while (current != null) {
-            successorParent = successor;
-            successor = current;
-            current = current.left;
+    public void checkColor(Node node) {
+        while (node != null) {
+            // parent has black color
+            if (node.parent != null) {
+                if (node.parent.color == 0 && node.color == 1) {
+                    // parent is black and node is red - ok
+                    break;
+                } else if (node.parent.color == 1) {
+                    // parent is red and node is red - not ok
+                    Node grandParent = node.parent.parent;
+                    if (grandParent != null) {
+                        if (!isLeftChild(node) && grandParent.color == 0 && grandParent.left == null) {
+                            grandParent.color = 1;
+                            grandParent.right.color = 0;
+                            rotateLeft(grandParent);
+                        } else  if (isLeftChild(node) && grandParent.color == 0 && grandParent.right == null) {
+                            grandParent.color = 1;
+                            grandParent.left.color = 0;
+                            rotateRight(grandParent);
+                        } else if ((isLeftChild(node.parent) && grandParent.right.color == 1) ||
+                           (!isLeftChild(node.parent) && grandParent.left.color == 1)) {
+                            // red uncle - should push blackness down and become red
+                            grandParent.left.color = 0;
+                            grandParent.right.color = 0;
+                            grandParent.color = 1;
+                        }
+                    }
+                    node = grandParent;
+                }
+            } else {
+                // root - should be painted black always
+                node.color = 0;
+                break;
+            }
         }
-        //check if successor has the right child, it cannot have left child for sure
-        //if it does have the right child, add it to the left of successorParent.
-        if (successor != deleteNode.right) {
-            successorParent.left = successor.right;
-            successor.right = deleteNode.right;
-        }
-        return new Node[] {successor, successorParent};
     }
     
     public static void displayTree( Node root ) {
         if (root != null) {
             displayTree(root.left);
-            System.out.print(" " + root.data + "(" + root.cor + ")");
+            System.out.print(" " + root.data + "(" + (root.color == 0 ? "p" : "v") + ")");
             displayTree(root.right);
         }
     }

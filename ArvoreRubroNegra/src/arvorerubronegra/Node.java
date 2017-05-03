@@ -18,18 +18,17 @@ class Node{
     public Node left = null;
     public Node right = null;
     public Node parent = null;
-    //public int balancingFactor = 0;
-    public int cor;
+    public int color;
     public Node(int d){
         this.data = d;
     }
     public Node (int d, int cor) {
         this.data = d;
-        this.cor = cor;
+        this.color = cor;
     }
     public Node (int d, int cor, Node parent) {
         this.data = d;
         this.parent = parent;
-        this.cor = cor;
+        this.color = cor;
     }
 }
