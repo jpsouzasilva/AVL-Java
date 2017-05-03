@@ -25,7 +25,10 @@ public class AVL {
         b.insert(6);
         b.insert(2);
         b.insert(10);
-        b.delete(10);
+        b.insert(9);
+        b.displayTree(b.root);
+        b.delete(9);
+        System.out.println("\n");
         b.displayTree(b.root);
     }
     
