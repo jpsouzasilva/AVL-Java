@@ -122,6 +122,7 @@ public class AVLTree extends BinarySearchTree {
                 root.left = current.left;
                 root.right = current.right;
                 root.balancingFactor = current.balancingFactor;
+                cbDelete(root);
                 return;
             } else if (isLeftChild) {
                 parent.left = successorAndParent[0];
@@ -134,8 +135,8 @@ public class AVLTree extends BinarySearchTree {
             successorAndParent[0].balancingFactor = current.balancingFactor;
 
             // assigning the successor's old parent to balance check
+            System.out.println(" - SUCESSOR= " + successorAndParent[0].data + " CHECK=" + successorAndParent[1].data);
             parent = successorAndParent[1];
-            System.out.println(successorAndParent[1].data + ":" + successorAndParent[1].balancingFactor);
         }
         cbDelete(parent);
     }
@@ -206,15 +207,13 @@ public class AVLTree extends BinarySearchTree {
     }
     
     public void cbInsert(Node node) {
-        boolean dblRotate;
         while (node != null) {
-            dblRotate = false;
             // get balancing factor if children aren't null
             int leftChildBalancingFactor = (node.left != null) ? Math.abs(node.left.balancingFactor) : 0;
             int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
 
             // attempt to know who is unbalancing the tree
-            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0
+            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) >= 0
                     ? node.left : node.right;
 
             // check for unbalanced state
@@ -223,25 +222,21 @@ public class AVLTree extends BinarySearchTree {
                     if (node.balancingFactor >= 0 && tempNode.balancingFactor >= 0) {
                         node = rotateRight(node).parent;
                     } else if ((node.balancingFactor >= 0 && tempNode.balancingFactor < 0)) {
-                        node = rotateLeftRight(node).parent;
-                        dblRotate = true;
+                        node = rotateLeftRight(node);
                     }
                 } else if (tempNode == node.right) {
                     if (node.balancingFactor < 0 && tempNode.balancingFactor <= 0) {
                         node = rotateLeft(node).parent;
                     } else if ((node.balancingFactor < 0 && tempNode.balancingFactor > 0)) {
-                        node = rotateRightLeft(node).parent;
-                        dblRotate = true;
+                        node = rotateRightLeft(node);
                     }
                 }
             }
             if (node != null && node.parent != null) {
-                if (!dblRotate) {
-                    if (isLeftChild(node)) {
-                        node.parent.balancingFactor += 1;
-                    } else {
-                        node.parent.balancingFactor -= 1;
-                    }
+                if (isLeftChild(node)) {
+                    node.parent.balancingFactor += 1;
+                } else {
+                    node.parent.balancingFactor -= 1;
                 }
                 if (node.parent.balancingFactor != 0) {
                     node = node.parent;
@@ -261,32 +256,36 @@ public class AVLTree extends BinarySearchTree {
             int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
 
             // attempt to know who is unbalancing the tree
-            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0
+            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) >= 0
                     ? node.left : node.right;
 
             // check for unbalanced state
             if (Math.abs(node.balancingFactor) == 2) {
                 if (tempNode == node.left) {
                     if (node.balancingFactor >= 0 && tempNode.balancingFactor >= 0) {
-                        node = rotateRight(node).parent;
+                        node = rotateRight(node);
                     } else if ((node.balancingFactor >= 0 && tempNode.balancingFactor < 0)) {
                         node = rotateLeftRight(node);
                     }
                 } else if (tempNode == node.right) {
                     if (node.balancingFactor < 0 && tempNode.balancingFactor <= 0) {
-                        node = rotateLeft(node).parent;
+                        node = rotateLeft(node);
                     } else if ((node.balancingFactor < 0 && tempNode.balancingFactor > 0)) {
                         node = rotateRightLeft(node);
                     }
                 }
             }
-            if (node != null && node.parent != null && node.parent.balancingFactor == 0) {
+            if (node != null && node.parent != null) {
                 if (isLeftChild(node)) {
                     node.parent.balancingFactor -= 1;
                 } else {
                     node.parent.balancingFactor += 1;
                 }
-                node = node.parent;
+                if (node.parent.balancingFactor == 0) {
+                    node = node.parent;
+                } else {
+                    break;
+                }
             } else {
                 break;
             }
