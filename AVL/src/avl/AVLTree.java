@@ -117,9 +117,11 @@ public class AVLTree extends BinarySearchTree {
         } else if (current.left != null && current.right != null) {
             Node[] successorAndParent = getSuccessorAndNodeToCheck(current);
             if (current == root) {
-                root = successorAndParent[0];
+                root = successorAndParent[0];;
                 root.left = current.left;
                 root.right = current.right;
+                if (root.left != null) root.left.parent = root;
+                if (root.right != null) root.right.parent = root;
                 root.balancingFactor = current.balancingFactor;
                 cbDelete(root);
                 return;
@@ -267,7 +269,7 @@ public class AVLTree extends BinarySearchTree {
             int rightChildBalancingFactor = (node.right != null) ? Math.abs(node.right.balancingFactor) : 0;
 
             // attempt to know who is unbalancing the tree
-            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) > 0
+            Node tempNode = (leftChildBalancingFactor - rightChildBalancingFactor) >= 0
                     ? node.left : node.right;
 
             // check for unbalanced state
