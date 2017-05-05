@@ -32,6 +32,11 @@ public class ArvoreRubroNegra {
         b.insert(7);
         b.insert(9);
         b.displayTree(b.root);
+        b = new BlackRedTree();
+        b.insert(4);
+        b.insert(5);
+        b.insert(6);
+        b.displayTree(b.root);
     }
     
 }
