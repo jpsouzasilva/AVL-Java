@@ -11,13 +11,13 @@ package avl;
  */
 public class AVL {
     public static void main(String arg[]){
-        AVLTree avl = new AVLTree();
-        //AVL_tree_test(avl);
+        //AVL_tree_test();
         //AVL_tree_test2();
         AVL_tree_test3();
     }
     
-    public static void AVL_tree_test(AVLTree b) {
+    public static void AVL_tree_test() {
+        AVLTree b = new AVLTree();
         b.insert(3);
         b.insert(8);
         b.insert(1);
@@ -28,12 +28,13 @@ public class AVL {
         b.insert(9);
         b.displayTree(b.root);
         b.delete(10);
+        b.delete(8);
         System.out.println("\n");
         b.displayTree(b.root);
-        b.insert(10);
+        /*b.insert(10);
         b.insert(0);
         System.out.println("\n");
-        b.displayTree(b.root);
+        b.displayTree(b.root);*/
     }
     
     public static void AVL_tree_test2() {
@@ -67,8 +68,6 @@ public class AVL {
         b.insert(15);
         System.out.println("\n");
         b.displayTree(b.root);
-        /*b.delete(20);
-        b.displayTree(b.root);*/
         b.delete(4);
         b.displayTree(b.root);
     }
