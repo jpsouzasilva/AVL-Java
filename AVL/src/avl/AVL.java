@@ -14,6 +14,7 @@ public class AVL {
         //AVL_tree_test();
         //AVL_tree_test2();
         AVL_tree_test3();
+        AVL_tree_test4();
     }
     
     public static void AVL_tree_test() {
@@ -67,6 +68,16 @@ public class AVL {
         // Case 3a: Insert 15
         b.insert(15);
         System.out.println("\n");
+        b.displayTree(b.root);
+        b.delete(4);
+        b.displayTree(b.root);
+    }
+
+    private static void AVL_tree_test4() {
+        AVLTree b = new AVLTree();
+        b.insert(3);
+        b.insert(4);
+        b.insert(5);
         b.displayTree(b.root);
         b.delete(4);
         b.displayTree(b.root);

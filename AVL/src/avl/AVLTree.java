@@ -135,10 +135,10 @@ public class AVLTree extends BinarySearchTree {
 
             // assigning the successor's old parent to balance check
             System.out.println(" - SUCESSOR= " + successorAndParent[0].data + " CHECK=" + successorAndParent[1].data);
-            cbDelete(successorAndParent[1]);
-            return;
+            
+            parent = successorAndParent[1];
         }
-        if (parent.left == null && parent.right == null) {
+        if ((parent.left == null && parent.right == null) || Math.abs(parent.balancingFactor) == 2) {
             cbDelete(parent);
         }
     }
