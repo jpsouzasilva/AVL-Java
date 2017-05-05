@@ -11,44 +11,30 @@ package avl;
  */
 public class AVL {
     public static void main(String arg[]){
-        //AVL_tree_test();
-        //AVL_tree_test2();
-        AVL_tree_test3();
+//        AVL_tree_test();
+//        AVL_tree_test3();
         AVL_tree_test4();
     }
     
     public static void AVL_tree_test() {
         AVLTree b = new AVLTree();
-        b.insert(3);
-        b.insert(8);
         b.insert(1);
-        b.insert(4);
-        b.insert(6);
         b.insert(2);
-        b.insert(10);
-        b.insert(9);
+        b.insert(3);
+        b.insert(4);
+        b.insert(5);
+        b.insert(6);
+        b.insert(7);
         b.displayTree(b.root);
-        b.delete(10);
-        b.delete(8);
+        b.delete(4);
+        b.delete(7);
+        b.delete(6);
         System.out.println("\n");
         b.displayTree(b.root);
         /*b.insert(10);
         b.insert(0);
         System.out.println("\n");
         b.displayTree(b.root);*/
-    }
-    
-    public static void AVL_tree_test2() {
-        AVLTree b = new AVLTree();
-        b.insert(5);
-        b.insert(3);
-        b.insert(4);
-        b.insert(1);
-        b.insert(2);
-        b.displayTree(b.root);
-        b.delete(4);
-        System.out.println("\n");
-        b.displayTree(b.root);
     }
     
     //http://stackoverflow.com/questions/3955680/how-to-check-if-my-avl-tree-implementation-is-correct
@@ -80,6 +66,7 @@ public class AVL {
         b.insert(5);
         b.displayTree(b.root);
         b.delete(4);
+        System.out.println("\n");
         b.displayTree(b.root);
     }
 }
