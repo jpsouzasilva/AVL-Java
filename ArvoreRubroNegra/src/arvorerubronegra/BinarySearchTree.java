@@ -96,6 +96,8 @@ public class BinarySearchTree {
         if (successor != deleteNode.right) {
             successorParent.left = successor.right;
             successor.right = deleteNode.right;
+        } else {
+            successor.parent.right = null;
         }
         return successor;
     }
