@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public class BlackRedTree extends BinarySearchTree {
-    public static Node root;
-    public static Map<Integer, List<Node>> treeLevels;
+    public Node root;
+    public Map<Integer, List<Node>> treeLevels;
+    public final int DOUBLE_BLACK = -1;
+    public final int BLACK = 0;
+    public final int RED = 1;
     
     public BlackRedTree() {
         this.root = null;
@@ -46,6 +49,172 @@ public class BlackRedTree extends BinarySearchTree {
                     checkColor(newNode);
                     return;
                 }
+            }
+        }
+    }
+    
+    @Override
+    public void delete(int id) {
+        Node parent = root;
+        Node current = root;
+        Node successor = null;
+        boolean isLeftChild = false;
+        while (current.data != id) {
+            parent = current;
+            if (current.data > id) {
+                isLeftChild = true;
+                current = current.left;
+            } else {
+                isLeftChild = false;
+                current = current.right;
+            }
+            if (current == null) {
+                return;
+            }
+        }
+        if (current.color == BLACK) current.color = DOUBLE_BLACK;
+        if (current.left == null && current.right == null) {
+            if (current == root) {
+                root = null;
+            }
+            if (isLeftChild == true) {
+                if (current.color == DOUBLE_BLACK) {
+                    checkDoubleBlack(current);
+                } else parent.left = null;
+            } else {
+                if (current.color == DOUBLE_BLACK) {
+                    checkDoubleBlack(current);
+                } else parent.right = null;
+            }
+            return;
+        }
+        else if (current.right == null) {
+            if (current == root) {
+                root = current.left;
+            } else if (isLeftChild) {
+                parent.left = current.left;
+                successor = parent.left;
+            } else {
+                parent.right = current.left;
+                successor = parent.right;
+            }
+        } else if (current.left == null) {
+            if (current == root) {
+                root = current.right;
+            } else if (isLeftChild) {
+                parent.left = current.right;
+                successor = parent.left;
+            } else {
+                parent.right = current.right;
+                successor = parent.right;
+            }
+        } else if (current.left != null && current.right != null) {
+            //now we have found the minimum element in the right sub tree
+            successor = getSuccessor(current);
+            if (current == root) {
+                root = successor;
+                root.color = BLACK;
+            } else if (isLeftChild) {
+                parent.left = successor;
+            } else {
+                parent.right = successor;
+            }
+            successor.left = current.left;
+            successor.right = current.right;
+            if (successor.left != null) successor.left.parent = successor;
+            if (successor.right != null) successor.right.parent = successor;
+            successor.parent = current.parent;
+        }
+       
+        if (current.color == DOUBLE_BLACK && successor.color == RED) {
+             // 2: Ne -> Ru
+            successor.color = 0;
+        } else if (current.color == RED && successor != null && successor.color == BLACK) {
+            // 4: Ru -> Ne
+            successor.color = RED;
+            if (successor.left == null) {
+                successor.left = new Node(0);
+                successor.left.color = DOUBLE_BLACK;
+                successor.left.parent = successor;
+                checkDoubleBlack(successor.left);
+            } else if (successor.right == null) {
+                successor.right = new Node(0);
+                successor.right.color = DOUBLE_BLACK;
+                successor.right.parent = successor;
+                checkDoubleBlack(successor.right);
+            }
+        }
+        // 1: Ru -> Ru
+    }
+    
+    private void checkDoubleBlack (Node current) {
+        Node parent = current.parent;
+        boolean isLeftChild = isLeftChild(current);
+        if (isLeftChild) {
+            if (hasTwoChildren(parent) && parent.right.color == RED) {
+                // 3 CASO 1
+                parent.right.color = BLACK;
+                parent.color = RED;
+                rotateLeft(parent);
+            } else if (hasTwoChildren(parent) && parent.right.color == BLACK && hasTwoChildren(parent.right) &&
+            parent.right.left.color == BLACK && parent.right.right.color == BLACK) {
+                // 3 CASO 2A
+                current.color = BLACK;
+                parent.right.color = RED;
+                parent.color = DOUBLE_BLACK;
+            } else if (hasTwoChildren(parent) && parent.color == RED && parent.right.color == BLACK && 
+            hasTwoChildren(parent.right) && parent.right.left.color == BLACK && parent.right.right.color == BLACK) {
+                // 3 CASO 2B - TERMINAL
+                current.color = BLACK;
+                parent.color = BLACK;
+                parent.right.color = RED;
+            } else if (hasTwoChildren(parent) && parent.right.color == BLACK && hasTwoChildren(parent.right) &&
+            parent.right.left.color == RED && parent.right.right.color == BLACK) {
+                // 3 CASO 3
+                parent.right.left.color = BLACK;
+                parent.right.color = RED;
+                rotateRight(parent.right);
+            } else if (hasTwoChildren(parent) && parent.right.color == BLACK && parent.right.right != null && 
+            parent.right.right.color == RED) {
+                // 3 CASO 4
+                parent.right.color = parent.color;
+                parent.right.right.color = BLACK;
+                parent.color = BLACK;
+                parent.left = null;
+                rotateLeft(parent);
+            }
+        } else {
+            if (hasTwoChildren(parent) && parent.left.color == RED) {
+                // 3 CASO 1
+                parent.left.color = BLACK;
+                parent.color = RED;
+                rotateRight(parent);
+            } else if (hasTwoChildren(parent) && parent.left.color == BLACK && hasTwoChildren(parent.left) &&
+            parent.left.right.color == BLACK && parent.left.left.color == BLACK) {
+                // 3 CASO 2A
+                current.color = BLACK;
+                parent.left.color = RED;
+                parent.color = DOUBLE_BLACK;
+            } else if (hasTwoChildren(parent) && parent.color == RED && parent.left.color == BLACK && 
+            hasTwoChildren(parent.left) && parent.left.right.color == BLACK && parent.left.left.color == BLACK) {
+                // 3 CASO 2B - TERMINAL
+                current.color = BLACK;
+                parent.color = BLACK;
+                parent.left.color = RED;
+            } else if (hasTwoChildren(parent) && parent.left.color == BLACK && hasTwoChildren(parent.left) &&
+            parent.left.right.color == RED && parent.left.left.color == BLACK) {
+                // 3 CASO 3
+                parent.left.right.color = BLACK;
+                parent.left.color = RED;
+                rotateLeft(parent.right);
+            } else if (hasTwoChildren(parent) && parent.left.color == BLACK && parent.left.left != null && 
+            parent.left.left.color == RED) {
+                // 3 CASO 4 - TERMINAL
+                parent.left.color = parent.color;
+                parent.left.left.color = BLACK;
+                parent.color = BLACK;
+                parent.right = null;
+                rotateRight(parent);
             }
         }
     }
@@ -113,7 +282,6 @@ public class BlackRedTree extends BinarySearchTree {
                 } else if (node.parent.color == 1) {
                     // parent is red and node is red - not ok
                     Node grandParent = node.parent.parent;
-//                    if (grandParent != null) {
                     if (!isLeftChild(node) && grandParent.left == null) {
                         if (!isLeftChild(node.parent)) {
                             grandParent.color = 1;
@@ -141,7 +309,6 @@ public class BlackRedTree extends BinarySearchTree {
                         grandParent.right.color = 0;
                         grandParent.color = 1;
                     }
-//                    }
                     node = grandParent;
                 }
             } else {
@@ -160,7 +327,7 @@ public class BlackRedTree extends BinarySearchTree {
         }
     }
     
-    public void generateTreeView (Node root) {
+    public void generateTreeView (Node root, String fileName) {
         treeLevels = new HashMap<>();
         buildTreeLevels(root, 0);
         String htmlOutput = "<!doctype html> <html> <head> <script type='text/javascript' src='jquery-1.7.2.min.js'></script><script type='text/javascript' src='jqSimpleConnect.js'></script> <meta charset='utf-8'> <title>Visualização da árvore Rubro-Negra</title> <meta name='description' content='Visualização da árvore Rubro-Negra'> <meta name='author' content='20151014040004'> <style> .row { width: 100%; text-align: center; } .node { width: 30px; border-radius: 6px; border: 1px solid black; display: inline-table; margin-top: 10px; margin-bottom: 10px; } .redNode { background-color: red;  color: black; } .blackNode { background-color: black; color: white; } </style> </head> <body>";
@@ -173,7 +340,7 @@ public class BlackRedTree extends BinarySearchTree {
             for (int j = 0; j < (Math.pow(2, i)); j++) {
                 int margin = new Double((startMagin/i)*1.2).intValue();
                 if (k < treeLevels.get(i).size() && ((Node)treeLevels.get(i).get(k)).parent.equals((Node)treeLevels.get(i-1).get(j/2))) {
-                    htmlOutput += String.format("<div id='%s' style='margin-left:%dpx; margin-right: %dpx;' class='node %s'>%d</div>", String.format("%d_%d", ((Node)treeLevels.get(i-1).get(j/2)).data, ((Node)treeLevels.get(i).get(k)).data), margin, margin,(((Node)treeLevels.get(i).get(k)).color == 0 ? "blackNode" : "redNode"), ((Node)treeLevels.get(i).get(k)).data);
+                    htmlOutput += String.format("<div id='%s' style='margin-left:%dpx; margin-right: %dpx;' class='node %s'>%d</div>", String.format("%d_%d", ((Node)treeLevels.get(i-1).get(j/2)).data, ((Node)treeLevels.get(i).get(k)).data), margin, margin,(((Node)treeLevels.get(i).get(k)).color == 1 ? "redNode" : "blackNode"), ((Node)treeLevels.get(i).get(k)).data);
                     k++;
                 } else {
                     htmlOutput += String.format("<div style='margin-left:%dpx; margin-right: %dpx;' class='node'>-</div>", (startMagin/i),(startMagin/i));
@@ -184,7 +351,7 @@ public class BlackRedTree extends BinarySearchTree {
         }
         htmlOutput += "<script>$(\".node[id]\").each(function(q,b){ var children = $(\".node[id^=\" + b.id.split(\"_\")[1] + \"]\"); var i = 0; for (;children[i];) { jqSimpleConnect.connect(\"#\" + b.id, \"#\" + children[i].id, {radius: 2, color: 'black', anchorA: \"vertical\", anchorB: \"vertical\"}); i++; } b.style.zIndex = \"999\"; b.style.position = \"relative\"; }); window.onresize = function () { jqSimpleConnect.repaintAll(); };</script>";
         htmlOutput += "</body></html>";
-        saveToFile(htmlOutput);
+        saveToFile(htmlOutput, fileName);
     }
     
     protected void buildTreeLevels(Node root, int level) {
@@ -198,9 +365,9 @@ public class BlackRedTree extends BinarySearchTree {
         }
     }
     
-    protected void saveToFile(String fileContents) {
+    protected void saveToFile(String fileContents, String fileName) {
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream("avlTree.html"), "utf-8"))) {
+              new FileOutputStream(fileName), "utf-8"))) {
             writer.write(fileContents);
             writer.close();
         } catch (Exception ex) {
@@ -208,7 +375,11 @@ public class BlackRedTree extends BinarySearchTree {
         }
     }
     
-    public boolean isLeftChild( Node node ) {
+    protected boolean isLeftChild( Node node ) {
         return (node.parent.left == node);
+    }
+    
+    protected boolean hasTwoChildren (Node node) {
+        return (node.left!=null && node.right!=null);
     }
 }
