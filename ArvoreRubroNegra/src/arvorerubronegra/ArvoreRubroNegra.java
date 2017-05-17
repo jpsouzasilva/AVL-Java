@@ -49,10 +49,13 @@ test2();
         b.insert(14);
         b.insert(7);
         b.displayTree(b.root);
+        b.generateTreeView(b.root, "avlTree1.html");
         System.out.println("\n");
         b.delete(10);
+        b.generateTreeView(b.root, "avlTree2.html");
+        b.delete(8);
         b.displayTree(b.root);
-        b.generateTreeView(b.root, "avlTree1.html");
+        b.generateTreeView(b.root, "avlTree3.html");
     }
     
 }
