@@ -339,18 +339,40 @@ public class BlackRedTree extends BinarySearchTree {
     public void generateTreeView (Node root, String fileName) {
         treeLevels = new HashMap<>();
         buildTreeLevels(root, 0);
+        int i = 0;
+        while (treeLevels.get(i) != null) {
+            if (i==0 || i+1 == treeLevels.size()) {
+                i++;
+                continue;
+            }
+            int maxNodeSize = new Double(Math.pow(2, i)).intValue();
+            int j;
+            for (j = 0; j < treeLevels.get(i).size(); j++) {
+                Node node = (Node) treeLevels.get(i).get(j);
+                if (node.left == null) {
+                    treeLevels.get(i+1).add(2*j, new Node(0));
+                }
+                if (node.right == null) {
+                    treeLevels.get(i+1).add((2*j)+1, new Node(0));
+                }
+                System.out.println("");
+            }
+            while (j < maxNodeSize) {
+                treeLevels.get(i+1).add(new Node(0));
+                j++;
+            }
+            i++;
+        }
         String htmlOutput = "<!doctype html> <html> <head> <script type='text/javascript' src='jquery-1.7.2.min.js'></script><script type='text/javascript' src='jqSimpleConnect.js'></script> <meta charset='utf-8'> <title>Visualização da árvore Rubro-Negra</title> <meta name='description' content='Visualização da árvore Rubro-Negra'> <meta name='author' content='20151014040004'> <style> .row { width: 100%; text-align: center; } .node { width: 30px; border-radius: 6px; border: 1px solid black; display: inline-table; margin-top: 10px; margin-bottom: 10px; } .redNode { background-color: red;  color: black; } .blackNode { background-color: black; color: white; } </style> </head> <body>";
         htmlOutput += "<div class='row'><div class='node blackNode' id='_" + root.data + "'>" + root.data + "</div></div>";
-        int i = 1;
+        i = 1;
         int startMagin = 80;
         while (treeLevels.get(i) != null) {
             htmlOutput += "<div class='row'>";
-            int k = 0;
-            for (int j = 0; j < (Math.pow(2, i)); j++) {
-                int margin = new Double((startMagin/i)*1.2).intValue();
-                if (k < treeLevels.get(i).size() && ((Node)treeLevels.get(i).get(k)).parent.equals((Node)treeLevels.get(i-1).get(j/2))) {
-                    htmlOutput += String.format("<div id='%s' style='margin-left:%dpx; margin-right: %dpx;' class='node %s'>%d</div>", String.format("%d_%d", ((Node)treeLevels.get(i-1).get(j/2)).data, ((Node)treeLevels.get(i).get(k)).data), margin, margin,(((Node)treeLevels.get(i).get(k)).color == 1 ? "redNode" : "blackNode"), ((Node)treeLevels.get(i).get(k)).data);
-                    k++;
+            int margin = new Double((startMagin/i)*1.2).intValue();
+            for (Node node : treeLevels.get(i)) {
+                if (node.parent != null) {
+                    htmlOutput += String.format("<div id='%s' style='margin-left:%dpx; margin-right: %dpx;' class='node %s'>%d</div>", String.format("%d_%d", node.parent.data, node.data), margin, margin, node.color == 1 ? "redNode" : "blackNode", node.data);
                 } else {
                     htmlOutput += String.format("<div style='margin-left:%dpx; margin-right: %dpx;' class='node'>-</div>", (startMagin/i),(startMagin/i));
                 }
@@ -358,6 +380,7 @@ public class BlackRedTree extends BinarySearchTree {
             htmlOutput += "</div>";
             i++;
         }
+        treeLevels = null;
         htmlOutput += "<script>$(\".node[id]\").each(function(q,b){ var children = $(\".node[id^=\" + b.id.split(\"_\")[1] + \"]\"); var i = 0; for (;children[i];) { jqSimpleConnect.connect(\"#\" + b.id, \"#\" + children[i].id, {radius: 2, color: 'black', anchorA: \"vertical\", anchorB: \"vertical\"}); i++; } b.style.zIndex = \"999\"; b.style.position = \"relative\"; }); window.onresize = function () { jqSimpleConnect.repaintAll(); };</script>";
         htmlOutput += "</body></html>";
         saveToFile(htmlOutput, fileName);
