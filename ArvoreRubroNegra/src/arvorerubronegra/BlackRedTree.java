@@ -355,7 +355,6 @@ public class BlackRedTree extends BinarySearchTree {
                 if (node.right == null) {
                     treeLevels.get(i+1).add((2*j)+1, new Node(0));
                 }
-                System.out.println("");
             }
             while (j < maxNodeSize) {
                 treeLevels.get(i+1).add(new Node(0));
