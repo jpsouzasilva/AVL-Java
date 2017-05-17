@@ -113,7 +113,6 @@ public class BlackRedTree extends BinarySearchTree {
             successor = getSuccessor(current);
             if (current == root) {
                 root = successor;
-                root.color = BLACK;
             } else if (isLeftChild) {
                 parent.left = successor;
             } else {
@@ -126,12 +125,15 @@ public class BlackRedTree extends BinarySearchTree {
             successor.parent = current.parent;
         }
        
-        if (current.color == DOUBLE_BLACK && successor.color == RED) {
-             // 2: Ne -> Ru
-            successor.color = 0;
-        } else if (current.color == RED && successor != null && successor.color == BLACK) {
-            // 4: Ru -> Ne
-            successor.color = RED;
+        if (current.color == DOUBLE_BLACK && successor != null && successor.color == RED) {
+             // CASO 2: Ne -> Ru
+            successor.color = BLACK;
+            
+        } else if (successor != null && successor.color == BLACK) {
+            // CASO 4: Ru -> Ne
+            if (current.color == RED) successor.color = RED;
+            
+            // CASO 3: Ne -> Ne
             if (successor.left == null) {
                 successor.left = new Node(0);
                 successor.left.color = DOUBLE_BLACK;
@@ -144,7 +146,8 @@ public class BlackRedTree extends BinarySearchTree {
                 checkDoubleBlack(successor.right);
             }
         }
-        // 1: Ru -> Ru
+        // CASO 1: Ru -> Ru
+        
     }
     
     private void checkDoubleBlack (Node current) {
@@ -155,6 +158,7 @@ public class BlackRedTree extends BinarySearchTree {
                 // 3 CASO 1
                 parent.right.color = BLACK;
                 parent.color = RED;
+                parent.left = null;
                 rotateLeft(parent);
             } else if (hasTwoChildren(parent) && parent.right.color == BLACK && hasTwoChildren(parent.right) &&
             parent.right.left.color == BLACK && parent.right.right.color == BLACK) {
@@ -162,17 +166,19 @@ public class BlackRedTree extends BinarySearchTree {
                 current.color = BLACK;
                 parent.right.color = RED;
                 parent.color = DOUBLE_BLACK;
+                checkDoubleBlack(parent);
             } else if (hasTwoChildren(parent) && parent.color == RED && parent.right.color == BLACK && 
-            hasTwoChildren(parent.right) && parent.right.left.color == BLACK && parent.right.right.color == BLACK) {
-                // 3 CASO 2B - TERMINAL
-                current.color = BLACK;
+            ((hasTwoChildren(parent.right) && parent.right.left.color == BLACK && parent.right.right.color == BLACK ) || hasNoChildren(parent.right))) {
+                // 3 CASO 2B
                 parent.color = BLACK;
                 parent.right.color = RED;
-            } else if (hasTwoChildren(parent) && parent.right.color == BLACK && hasTwoChildren(parent.right) &&
-            parent.right.left.color == RED && parent.right.right.color == BLACK) {
+                parent.left = null;
+            } else if (hasTwoChildren(parent) && parent.right.color == BLACK && ((hasTwoChildren(parent.right) &&
+            parent.right.left.color == RED && parent.right.right.color == BLACK)) || hasLeftChild(parent.right) && parent.right.left.color == RED) {
                 // 3 CASO 3
                 parent.right.left.color = BLACK;
                 parent.right.color = RED;
+                parent.left = null;
                 rotateRight(parent.right);
             } else if (hasTwoChildren(parent) && parent.right.color == BLACK && parent.right.right != null && 
             parent.right.right.color == RED) {
@@ -188,6 +194,7 @@ public class BlackRedTree extends BinarySearchTree {
                 // 3 CASO 1
                 parent.left.color = BLACK;
                 parent.color = RED;
+                parent.right = null;
                 rotateRight(parent);
             } else if (hasTwoChildren(parent) && parent.left.color == BLACK && hasTwoChildren(parent.left) &&
             parent.left.right.color == BLACK && parent.left.left.color == BLACK) {
@@ -195,21 +202,23 @@ public class BlackRedTree extends BinarySearchTree {
                 current.color = BLACK;
                 parent.left.color = RED;
                 parent.color = DOUBLE_BLACK;
+                checkDoubleBlack(parent);
             } else if (hasTwoChildren(parent) && parent.color == RED && parent.left.color == BLACK && 
-            hasTwoChildren(parent.left) && parent.left.right.color == BLACK && parent.left.left.color == BLACK) {
-                // 3 CASO 2B - TERMINAL
-                current.color = BLACK;
+            ((hasTwoChildren(parent.left) && parent.left.left.color == BLACK && parent.left.right.color == BLACK ) || hasNoChildren(parent.left))) {
+                // 3 CASO 2B
                 parent.color = BLACK;
                 parent.left.color = RED;
-            } else if (hasTwoChildren(parent) && parent.left.color == BLACK && hasTwoChildren(parent.left) &&
-            parent.left.right.color == RED && parent.left.left.color == BLACK) {
+                parent.right = null;
+            } else if (hasTwoChildren(parent) && parent.left.color == BLACK && ((hasTwoChildren(parent.left) &&
+            parent.left.right.color == RED && parent.left.left.color == BLACK) || hasRightChild(parent.left) && parent.left.right.color == RED)) {
                 // 3 CASO 3
                 parent.left.right.color = BLACK;
                 parent.left.color = RED;
+                parent.right = null;
                 rotateLeft(parent.right);
             } else if (hasTwoChildren(parent) && parent.left.color == BLACK && parent.left.left != null && 
             parent.left.left.color == RED) {
-                // 3 CASO 4 - TERMINAL
+                // 3 CASO 4
                 parent.left.color = parent.color;
                 parent.left.left.color = BLACK;
                 parent.color = BLACK;
@@ -379,7 +388,19 @@ public class BlackRedTree extends BinarySearchTree {
         return (node.parent.left == node);
     }
     
+    protected boolean hasNoChildren (Node node) {
+        return node.left == null && node.right == null;
+    }
+    
     protected boolean hasTwoChildren (Node node) {
-        return (node.left!=null && node.right!=null);
+        return hasRightChild(node) && hasLeftChild(node);
+    }
+    
+    protected boolean hasLeftChild(Node node) {
+        return node.left != null;
+    }
+    
+    protected boolean hasRightChild(Node node) {
+        return node.right != null;
     }
 }
