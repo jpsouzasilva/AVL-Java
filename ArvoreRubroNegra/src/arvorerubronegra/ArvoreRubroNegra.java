@@ -15,9 +15,11 @@ public class ArvoreRubroNegra {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//       test1();
+       test1();
 //       test2();
-       test3();
+//       test3();
+//       test4();
+//       test5();
     }
     
     public static void test1() {
@@ -73,6 +75,51 @@ public class ArvoreRubroNegra {
         b.delete(2);
         b.displayTree(b.root);
         b.generateTreeView(b.root, "avlTreeT3-1.html");
+    }
+    
+    public static void test4() {
+        BlackRedTree b = new BlackRedTree();
+        b.insert(5);
+        b.insert(3);
+        b.insert(8);
+        b.insert(2);
+        b.insert(7);
+        b.insert(10);
+        b.insert(4);
+        b.insert(11);
+        b.insert(9);
+        b.insert(6);
+        b.insert(20);
+        b.insert(21);
+        b.displayTree(b.root);
+        b.generateTreeView(b.root, "avlTreeT4-1.html");
+    }
+    
+    public static void test5() {
+        BlackRedTree b = new BlackRedTree();
+        b.insert(1);
+        b.insert(2);
+        b.insert(3);
+        b.displayTree(b.root);
+        System.out.println("\n");
+        b = new BlackRedTree();
+        b.insert(1);
+        b.insert(3);
+        b.insert(2);
+        b.displayTree(b.root);
+        System.out.println("\n");
+        b = new BlackRedTree();
+        b.insert(3);
+        b.insert(2);
+        b.insert(1);
+        b.displayTree(b.root);
+        System.out.println("\n");
+        b = new BlackRedTree();
+        b.insert(3);
+        b.insert(1);
+        b.insert(2);
+        b.displayTree(b.root);
+        System.out.println("\n");
     }
     
 }

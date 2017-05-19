@@ -291,28 +291,27 @@ public class BlackRedTree extends BinarySearchTree {
                 } else if (node.parent.color == 1) {
                     // parent is red and node is red - not ok
                     Node grandParent = node.parent.parent;
-                    if (!isLeftChild(node) && grandParent.left == null) {
-                        if (!isLeftChild(node.parent)) {
+                    if (!isLeftChild(node.parent) && grandParent.left == null) {
+                        if (!isLeftChild(node)) {
                             grandParent.color = 1;
-                            grandParent.right.color = 0;
+                            node.parent.color = 0;
                             rotateLeft(grandParent);
-                        } else {
-                            grandParent.color = 1;
-                            node.color = 0;
-                            rotateLeftRight(grandParent);
-                        }
-                    } else if (isLeftChild(node) && grandParent.right == null) {
-                        if (isLeftChild(node.parent)) {
-                            grandParent.color = 1;
-                            grandParent.left.color = 0;
-                            rotateRight(grandParent);
                         } else {
                             grandParent.color = 1;
                             node.color = 0;
                             rotateRightLeft(grandParent);
                         }
-                    } else if ((isLeftChild(node.parent) && grandParent.right.color == 1) ||
-                       (!isLeftChild(node.parent) && grandParent.left.color == 1)) {
+                    } else if (isLeftChild(node.parent) && grandParent.right == null) {
+                        if (isLeftChild(node)) {
+                            grandParent.color = 1;
+                            node.parent.color = 0;
+                            rotateRight(grandParent);
+                        } else {
+                            grandParent.color = 1;
+                            node.color = 0;
+                            rotateLeftRight(grandParent);
+                        }
+                    } else if ((isLeftChild(node.parent) && grandParent.right.color == RED) || (!isLeftChild(node.parent) && grandParent.left.color == RED)) {
                         // red uncle - should push blackness down and become red
                         grandParent.left.color = 0;
                         grandParent.right.color = 0;
