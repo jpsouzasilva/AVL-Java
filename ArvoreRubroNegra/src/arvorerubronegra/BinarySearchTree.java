@@ -95,7 +95,9 @@ public class BinarySearchTree {
         //if it does have the right child, add it to the left of successorParent.
         if (successor != deleteNode.right) {
             successorParent.left = successor.right;
+            if (successorParent.left != null) successorParent.left.parent = successorParent;
             successor.right = deleteNode.right;
+            if (successor.right != null) successor.right.parent = successor;
         } else {
             successor.parent.right = null;
         }
