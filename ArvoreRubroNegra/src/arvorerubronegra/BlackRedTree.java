@@ -113,15 +113,36 @@ public class BlackRedTree extends BinarySearchTree {
             successor = getSuccessor(current);
             if (current == root) {
                 root = successor;
+                if (successor.color == BLACK) {
+                    Node doubleBlackNode = new Node(0);
+                    if (isLeftChild(successor)) {
+                        Node left = successor.parent.left;
+                        successor.parent.left = doubleBlackNode;
+                        doubleBlackNode.left = left.left;
+                        doubleBlackNode.right = left.right;
+                    } else {
+                        Node right = successor.parent.right;
+                        successor.parent.right = doubleBlackNode;
+                        doubleBlackNode.left = right.left;
+                        doubleBlackNode.right = right.right;
+                    }
+                    doubleBlackNode.color = DOUBLE_BLACK;
+                    doubleBlackNode.parent = successor.parent;
+                    successor.left = current.left;
+                    if (successor.left != null) successor.left.parent = successor;
+                    successor.right = current.right;
+                    if (successor.right != null) successor.right.parent = successor;
+                    successor.parent = current.parent;
+                    checkDoubleBlack(doubleBlackNode);
+                    return;
+                }
             } else if (isLeftChild) {
                 parent.left = successor;
             } else {
                 parent.right = successor;
             }
             successor.left = current.left;
-            successor.right = current.right;
             if (successor.left != null) successor.left.parent = successor;
-            if (successor.right != null) successor.right.parent = successor;
             successor.parent = current.parent;
         }
        
@@ -140,7 +161,7 @@ public class BlackRedTree extends BinarySearchTree {
                 successor.left.parent = successor;
                 checkDoubleBlack(successor.left);
             } else if (successor.right == null) {
-                successor.right = new Node(0);
+                successor.right = new Node(0); 
                 successor.right.color = DOUBLE_BLACK;
                 successor.right.parent = successor;
                 checkDoubleBlack(successor.right);
@@ -222,7 +243,7 @@ public class BlackRedTree extends BinarySearchTree {
                 parent.left.color = parent.color;
                 parent.left.left.color = BLACK;
                 parent.color = BLACK;
-                parent.right = null;
+                parent.right = parent.right.right;
                 rotateRight(parent);
             }
         }

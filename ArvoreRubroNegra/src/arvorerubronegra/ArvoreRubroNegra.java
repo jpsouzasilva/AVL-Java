@@ -91,8 +91,14 @@ public class ArvoreRubroNegra {
         b.insert(6);
         b.insert(20);
         b.insert(21);
+        b.insert(24);
+        b.insert(1);
         b.displayTree(b.root);
         b.generateTreeView(b.root, "avlTreeT4-1.html");
+        b.delete(8);
+        b.generateTreeView(b.root, "avlTreeT4-2.html");
+        b.delete(9);
+        b.generateTreeView(b.root, "avlTreeT4-3.html");
     }
     
     public static void test5() {
