@@ -291,7 +291,7 @@ public class BlackRedTree extends BinarySearchTree {
                 } else if (node.parent.color == 1) {
                     // parent is red and node is red - not ok
                     Node grandParent = node.parent.parent;
-                    if (!isLeftChild(node.parent) && grandParent.left == null) {
+                    if (!isLeftChild(node.parent) && (grandParent.left == null || (grandParent.left != null && grandParent.left.color == BLACK))) {
                         if (!isLeftChild(node)) {
                             grandParent.color = 1;
                             node.parent.color = 0;
@@ -301,7 +301,7 @@ public class BlackRedTree extends BinarySearchTree {
                             node.color = 0;
                             rotateRightLeft(grandParent);
                         }
-                    } else if (isLeftChild(node.parent) && grandParent.right == null) {
+                    } else if (isLeftChild(node.parent) && (grandParent.right == null) || (grandParent.right != null && grandParent.right.color == BLACK)) {
                         if (isLeftChild(node)) {
                             grandParent.color = 1;
                             node.parent.color = 0;
