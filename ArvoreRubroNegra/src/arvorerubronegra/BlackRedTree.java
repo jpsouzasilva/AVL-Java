@@ -91,6 +91,8 @@ public class BlackRedTree extends BinarySearchTree {
         else if (current.right == null) {
             if (current == root) {
                 root = current.left;
+                root.parent = null;
+                root.color = BLACK;
             } else if (isLeftChild) {
                 parent.left = current.left;
                 successor = parent.left;
@@ -101,6 +103,8 @@ public class BlackRedTree extends BinarySearchTree {
         } else if (current.left == null) {
             if (current == root) {
                 root = current.right;
+                root.parent = null;
+                root.color = BLACK;
             } else if (isLeftChild) {
                 parent.left = current.right;
                 successor = parent.left;
@@ -113,32 +117,31 @@ public class BlackRedTree extends BinarySearchTree {
             successor = getSuccessor(current);
             if (current == root) {
                 root = successor;
-                if (successor.parent != current) {
-                    if (successor.color == BLACK) {
-                        // CASO 3: Ne -> Ne
-                        Node doubleBlackNode = new Node(0);
-                        if (successor.parent.left == null) {
-                            successor.parent.left = doubleBlackNode;
-                        } else if (successor.parent.right == null) {
-                            successor.parent.right = doubleBlackNode;
-                        } else {
-                            successor.parent.right.color = BLACK;
-                            successor.parent.left.color = BLACK;
-                        }
-                        doubleBlackNode.color = DOUBLE_BLACK;
-                        doubleBlackNode.parent = successor.parent;
-                        successor.left = current.left;
-                        if (successor.left != null) successor.left.parent = successor;
-                        successor.right = current.right;
-                        if (successor.right != null) successor.right.parent = successor;
-                        root.parent = null;
-                        root.color = BLACK;
-                        checkDoubleBlack(doubleBlackNode);
-                        return;
+                if (successor.color == BLACK) {
+                    // CASO 3: Ne -> Ne
+                    Node doubleBlackNode = new Node(0);
+                    if (successor.parent.left == null) {
+                        successor.parent.left = doubleBlackNode;
+                    } else if (successor.parent.right == null) {
+                        successor.parent.right = doubleBlackNode;
+                    } else {
+                        successor.parent.right.color = BLACK;
+                        successor.parent.left.color = BLACK;
                     }
+                    doubleBlackNode.color = DOUBLE_BLACK;
+                    doubleBlackNode.parent = successor.parent;
+                    successor.left = current.left;
+                    if (successor.left != null) successor.left.parent = successor;
+                    successor.right = current.right;
+                    if (successor.right != null) successor.right.parent = successor;
+                    root.parent = null;
+                    root.color = BLACK;
+                    checkDoubleBlack(doubleBlackNode);
+                } else {
+                    // CASO 2: Ne -> Ru
+                    root.parent = null;
+                    root.color = BLACK;
                 }
-                root.parent = null;
-                root.color = BLACK;
                 return;
             } else if (isLeftChild) {
                 parent.left = successor;
@@ -147,29 +150,38 @@ public class BlackRedTree extends BinarySearchTree {
             }
             successor.left = current.left;
             if (successor.left != null) successor.left.parent = successor;
-            successor.parent = current.parent;
+            successor.right = current.right;
+            if (successor.right != null) successor.right.parent = successor;
         }
        
         if (current.color == DOUBLE_BLACK && successor != null && successor.color == RED) {
              // CASO 2: Ne -> Ru
             successor.color = BLACK;
+            successor.parent = current.parent;
             
         } else if (successor != null && successor.color == BLACK) {
             // CASO 4: Ru -> Ne
             if (current.color == RED) successor.color = RED;
             
             // CASO 3: Ne -> Ne
-            if (successor.left == null) {
-                successor.left = new Node(0);
-                successor.left.color = DOUBLE_BLACK;
-                successor.left.parent = successor;
-                checkDoubleBlack(successor.left);
-            } else if (successor.right == null) {
-                successor.right = new Node(0); 
-                successor.right.color = DOUBLE_BLACK;
-                successor.right.parent = successor;
-                checkDoubleBlack(successor.right);
+            Node doubleBlackNode = new Node(0);
+            if (successor.parent.left == null) {
+                successor.parent.left = doubleBlackNode;
+            } else if (successor.parent.right == null) {
+                successor.parent.right = doubleBlackNode;
+            } else {
+                successor.parent.right.color = BLACK;
+                successor.parent.left.color = BLACK;
             }
+            doubleBlackNode.color = DOUBLE_BLACK;
+            doubleBlackNode.parent = successor.parent;
+            successor.left = current.left;
+            if (successor.left != null) successor.left.parent = successor;
+            successor.right = current.right;
+            if (successor.right != null) successor.right.parent = successor;
+            successor.parent = current.parent;
+            checkDoubleBlack(doubleBlackNode);
+            
         }
         // CASO 1: Ru -> Ru
         
