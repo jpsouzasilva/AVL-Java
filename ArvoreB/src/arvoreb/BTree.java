@@ -34,8 +34,12 @@ public class BTree {
                     foundNode = true;
                     break;
                 } else if (keyToFind <= key) {
-                    current = current.children.get(key)[LEFT];
-                    level++;
+                    if (current.children.get(key) != null) {
+                        current = current.children.get(key)[LEFT];
+                        level++;
+                    } else {
+                        current = null;
+                    }
                     break;
                 } else if (keyToFind >= key) {
                     if (key.equals(current.keys.last())) {
@@ -61,10 +65,14 @@ public class BTree {
     public Node findInsertPosition (Character keyToInsert) throws Exception {
         Node current = root;
         boolean keyInserted = false;
+        Character lastKey = '#';
         while (current!=null && !keyInserted) {
             for (Character key : current.keys) {
                 if (keyToInsert <= key) {
-                    if (current.children.get(key)!=null && current.children.get(key)[LEFT]!= null) {
+                    if (current.children.get(lastKey)!=null && current.children.get(lastKey)[RIGHT] != null) {
+                        current = current.children.get(key)[RIGHT];
+                        break;
+                    } else if (current.children.get(key)!=null && current.children.get(key)[LEFT]!= null) {
                         current = current.children.get(key)[LEFT];
                         break;
                     } else {
@@ -82,12 +90,13 @@ public class BTree {
                         break;
                     }
                 }
+                lastKey = key;
             }
         }
         return current;
     }
     
-    public void tryFixRecusiverly (Node node) throws Exception {
+    public void tryFixUpwardsRecusiverly (Node node) throws Exception {
         if (node == null) {
             return;
         }
@@ -96,20 +105,23 @@ public class BTree {
             if (node.parent == null) {
                 // root
                 root = new Node(this.order, Arrays.asList(keyToAscend));
-                node.keys.remove(keyToAscend);
                 node.parent = root;
+            } else {
+                node.parent.keys.add(keyToAscend);
             }
             TreeSet<Character> leftSide = new TreeSet<>();
             TreeSet<Character> rightSide = new TreeSet<>();
             for (Character key : node.keys) {
+                if (key.equals(keyToAscend)) continue;
                 if (key < keyToAscend) {
                     leftSide.add(key);
                 } else {
                     rightSide.add(key);
                 }
             }
+            node.parent.children.remove(keyToAscend);
             node.parent.children.put(keyToAscend, new Node[] {new Node(this.order, leftSide, node.parent), new Node(this.order, rightSide, node.parent)} );
-            tryFixRecusiverly(node.parent);
+            tryFixUpwardsRecusiverly(node.parent);
         }
     }
     
@@ -119,7 +131,7 @@ public class BTree {
             System.out.println("Root initialized.");
         } else {
             Node nodeInsertedInto = findInsertPosition(key);
-            tryFixRecusiverly(nodeInsertedInto);
+            tryFixUpwardsRecusiverly(nodeInsertedInto);
             System.out.println("Node inserted successfully.");
         }
     }
