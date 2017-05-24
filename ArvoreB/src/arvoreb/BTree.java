@@ -102,24 +102,26 @@ public class BTree {
         }
         if (node.isSizeOverflowed()) {
             Character keyToAscend = (Character) node.keys.toArray()[node.keys.size()/2];
+            Character keyBeforeAscended = null;
             if (node.parent == null) {
                 // root
                 root = new Node(this.order, Arrays.asList(keyToAscend));
                 node.parent = root;
             } else {
+                keyBeforeAscended = node.parent.keys.floor(keyToAscend);
                 node.parent.keys.add(keyToAscend);
             }
+            node.keys.remove(keyToAscend);
             TreeSet<Character> leftSide = new TreeSet<>();
             TreeSet<Character> rightSide = new TreeSet<>();
-            for (Character key : node.keys) {
-                if (key.equals(keyToAscend)) continue;
+            while (!node.keys.isEmpty()) {
+                Character key = node.keys.pollLast();
                 if (key < keyToAscend) {
                     leftSide.add(key);
                 } else {
                     rightSide.add(key);
                 }
             }
-            node.parent.children.remove(keyToAscend);
             node.parent.children.put(keyToAscend, new Node[] {new Node(this.order, leftSide, node.parent), new Node(this.order, rightSide, node.parent)} );
             tryFixUpwardsRecusiverly(node.parent);
         }
