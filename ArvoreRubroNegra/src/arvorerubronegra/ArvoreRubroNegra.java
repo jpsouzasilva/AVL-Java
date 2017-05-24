@@ -99,6 +99,8 @@ public class ArvoreRubroNegra {
         b.generateTreeView(b.root, "avlTreeT4-2.html");
         b.delete(9);
         b.generateTreeView(b.root, "avlTreeT4-3.html");
+        b.delete(20);
+        b.generateTreeView(b.root, "avlTreeT4-4.html");
     }
     
     public static void test5() {

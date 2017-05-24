@@ -117,32 +117,6 @@ public class BlackRedTree extends BinarySearchTree {
             successor = getSuccessor(current);
             if (current == root) {
                 root = successor;
-                if (successor.color == BLACK) {
-                    // CASO 3: Ne -> Ne
-                    Node doubleBlackNode = new Node(0);
-                    if (successor.parent.left == null) {
-                        successor.parent.left = doubleBlackNode;
-                    } else if (successor.parent.right == null) {
-                        successor.parent.right = doubleBlackNode;
-                    } else {
-                        successor.parent.right.color = BLACK;
-                        successor.parent.left.color = BLACK;
-                    }
-                    doubleBlackNode.color = DOUBLE_BLACK;
-                    doubleBlackNode.parent = successor.parent;
-                    successor.left = current.left;
-                    if (successor.left != null) successor.left.parent = successor;
-                    successor.right = current.right;
-                    if (successor.right != null) successor.right.parent = successor;
-                    root.parent = null;
-                    root.color = BLACK;
-                    checkDoubleBlack(doubleBlackNode);
-                } else {
-                    // CASO 2: Ne -> Ru
-                    root.parent = null;
-                    root.color = BLACK;
-                }
-                return;
             } else if (isLeftChild) {
                 parent.left = successor;
             } else {
@@ -172,6 +146,7 @@ public class BlackRedTree extends BinarySearchTree {
             } else {
                 successor.parent.right.color = BLACK;
                 successor.parent.left.color = BLACK;
+                return;
             }
             doubleBlackNode.color = DOUBLE_BLACK;
             doubleBlackNode.parent = successor.parent;
@@ -181,10 +156,38 @@ public class BlackRedTree extends BinarySearchTree {
             if (successor.right != null) successor.right.parent = successor;
             successor.parent = current.parent;
             checkDoubleBlack(doubleBlackNode);
-            
         }
         // CASO 1: Ru -> Ru
         
+    }
+    
+    @Override
+    public Node getSuccessor(Node deleteNode) {
+        Node successor = null;
+        Node current = deleteNode.right;
+        while (current != null) {
+            successor = current;
+            current = current.left;
+        }
+        //check if successor has the right child, it cannot have left child for sure
+        //if it does have the right child, add it to the left of successorParent.
+        if (successor != deleteNode.right) {
+            successor.parent.left = successor.right;
+            if (successor.parent.left != null) {
+                successor.parent.left.parent = successor.parent;
+            }
+        } else {
+            if (successor.parent != null) {
+                if (successor.right != null) {
+                    successor.parent.right = successor.right;
+                    successor.parent.right.color = successor.color;
+                    successor.parent.right.parent = successor.parent;
+                } else {
+                    successor.parent.right = null;
+                }
+            }
+        }
+        return successor;
     }
     
     private void checkDoubleBlack (Node current) {

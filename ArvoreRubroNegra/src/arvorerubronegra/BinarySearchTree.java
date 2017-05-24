@@ -74,8 +74,10 @@ public class BinarySearchTree {
                 root = successor;
             } else if (isLeftChild) {
                 parent.left = successor;
+                successor.parent = parent;
             } else {
                 parent.right = successor;
+                successor.parent = parent;
             }
             successor.left = current.left;
         }
